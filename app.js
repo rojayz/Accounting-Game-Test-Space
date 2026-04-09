@@ -5,6 +5,9 @@ const $ = (id) => document.getElementById(id);
 
 let score = 0;
 let txIndex = 0;
+let gameTransactions = [];
+let answeredTransactions = new Set();
+let correctAnswers = 0;
 
 // Internal ledger uses debit-positive balances
 const ledger = Object.fromEntries(COA.map((account) => [account.id, 0]));
@@ -57,10 +60,24 @@ function rowHTML(label, amount, options = {}) {
     </div>
   `;
 }
+function shuffleArray(array) {
+  const copy = [...array];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+
+  return copy;
+}
+
+function getRandomTransactions(allTransactions, count) {
+  return shuffleArray(allTransactions).slice(0, count);
+}
 
 function renderTransaction() {
-  const tx = TRANSACTIONS[txIndex];
-  $("txPrompt").textContent = `${txIndex + 1}/${TRANSACTIONS.length} — ${tx.prompt}`;
+  const tx = gameTransactions[txIndex];
+$("txPrompt").textContent = `${txIndex + 1}/${gameTransactions.length} — ${tx.prompt}`;
   $("feedback").textContent = "";
   $("feedback").style.color = "var(--muted)";
 }
@@ -310,24 +327,36 @@ function tryPostJE() {
     return;
   }
 
-  const tx = TRANSACTIONS[txIndex];
+  const tx = gameTransactions[txIndex];
   const cleanLines = je.filter((line) => Number(line.amount) > 0);
   const correct = linesEqualAsMultiset(cleanLines, tx.entry);
 
+  if (answeredTransactions.has(tx.id)) {
+    $("feedback").textContent = "You already answered this transaction.";
+    $("feedback").style.color = "var(--auburn-navy)";
+    return;
+  }
+
+  answeredTransactions.add(tx.id);
+
   if (correct) {
     score += 10;
+    correctAnswers += 1;
     $("feedback").textContent = `✅ Correct! Posted.\n${tx.explain}`;
     $("feedback").style.color = "var(--ok)";
-    $("score").textContent = `Score: ${score}`;
 
     postToLedger(cleanLines);
     renderStatements();
   } else {
-    score -= 2;
     $("feedback").textContent =
-      "❌ Not quite.\nHint: think about which accounts change and their normal balances.";
+      "❌ Incorrect.\nHint: think about which accounts change and their normal balances.";
     $("feedback").style.color = "var(--bad)";
-    $("score").textContent = `Score: ${score}`;
+  }
+
+  $("score").textContent = `Score: ${correctAnswers} / ${gameTransactions.length}`;
+
+  if (answeredTransactions.size === gameTransactions.length) {
+    $("feedback").textContent += `\n\nGame complete. Final score: ${correctAnswers} out of ${gameTransactions.length}. Refresh the page to start a new round.`;
   }
 }
 
@@ -354,7 +383,7 @@ function bindEvents() {
   $("postJE").addEventListener("click", tryPostJE);
 
   $("nextTx").addEventListener("click", () => {
-    txIndex = Math.min(txIndex + 1, TRANSACTIONS.length - 1);
+    txIndex = Math.min(txIndex + 1, gameTransactions.length - 1);
     renderTransaction();
   });
 
@@ -365,6 +394,14 @@ function bindEvents() {
 }
 
 function init() {
+  gameTransactions = getRandomTransactions(TRANSACTIONS, 10);
+  txIndex = 0;
+  score = 0;
+  correctAnswers = 0;
+  answeredTransactions = new Set();
+
+  $("score").textContent = `Score: 0 / ${gameTransactions.length}`;
+
   bindEvents();
   renderTransaction();
   renderJELines();
