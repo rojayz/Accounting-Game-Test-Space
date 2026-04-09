@@ -6,7 +6,7 @@ const $ = (id) => document.getElementById(id);
 let score = 0;
 let txIndex = 0;
 
-// debit-positive internal ledger
+// Internal ledger uses debit-positive balances
 const ledger = Object.fromEntries(COA.map((account) => [account.id, 0]));
 
 let je = [newLine(), newLine()];
@@ -17,10 +17,6 @@ function newLine() {
     dc: "D",
     amount: 0
   };
-}
-
-function accountById(id) {
-  return COA.find((account) => account.id === id);
 }
 
 function displayAmount(account) {
@@ -80,7 +76,6 @@ function renderJELines() {
       option.selected = account.id === line.accountId;
       accountSelect.appendChild(option);
     });
-
     accountSelect.addEventListener("change", (event) => {
       je[i].accountId = event.target.value;
       renderTotals();
@@ -97,7 +92,6 @@ function renderJELines() {
       option.selected = item.value === line.dc;
       dcSelect.appendChild(option);
     });
-
     dcSelect.addEventListener("change", (event) => {
       je[i].dc = event.target.value;
       renderTotals();
@@ -108,7 +102,6 @@ function renderJELines() {
     amountInput.min = "0";
     amountInput.step = "1";
     amountInput.value = line.amount;
-
     amountInput.addEventListener("input", (event) => {
       je[i].amount = Number(event.target.value || 0);
       renderTotals();
@@ -118,7 +111,6 @@ function renderJELines() {
     removeButton.className = "remove";
     removeButton.type = "button";
     removeButton.textContent = "✕";
-
     removeButton.addEventListener("click", () => {
       if (je.length <= 1) return;
       je.splice(i, 1);
