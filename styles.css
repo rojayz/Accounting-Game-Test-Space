@@ -1,351 +1,81 @@
-:root {
-  /* Base palette */
-  --bg: #f7f7f8;
-  --card: #ffffff;
-  --card-soft: #fafafa;
-  --text: #1f2937;
-  --muted: #6b7280;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accounting Journal Entry Game</title>
+  <link rel="stylesheet" href="./styles.css?v=7" />
+</head>
+<body>
+  <div id="landingPage" class="landing-page">
+    <div class="landing-card">
+      <p class="eyebrow">Auburn Accounting Learning Game</p>
+      <h1>Journal Entry Practice</h1>
+      <p class="learning-objective">
+        You will practice translating simple business events into properly formatted
+        journal entries using correct account classifications and debit/credit rules.
+      </p>
+      <button id="startGame" class="primary large-button" type="button">Start Game</button>
+    </div>
+  </div>
 
-  /* Borders */
-  --border: #e5e7eb;
-  --border-strong: #d1d5db;
+  <div id="gameWrapper" class="app-shell is-hidden">
+    <header class="header">
+      <div>
+        <h1>Journal Entry → Financial Statements</h1>
+        <p class="subhead">Auburn University Accounting Game</p>
+      </div>
+      <div id="score" class="pill">Score: 0</div>
+    </header>
 
-  /* Auburn accents */
-  --auburn-orange: #e87722;
-  --auburn-navy: #0c2340;
+    <main class="grid">
+      <section class="card">
+        <h2>Transaction</h2>
+        <div id="txPrompt" class="prompt"></div>
+        <div class="row">
+          <button id="prevTx" type="button">◀ Previous</button>
+          <button id="nextTx" type="button">Next ▶</button>
+        </div>
+      </section>
 
-  /* Feedback */
-  --ok: #16a34a;
-  --bad: #dc2626;
+      <section class="card">
+        <h2>Journal Entry</h2>
+        <div id="jeLines"></div>
 
-  /* UI */
-  --radius: 12px;
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-}
+        <div class="row">
+          <button id="addLine" type="button">+ Add line</button>
+          <button id="clearJE" type="button">Clear</button>
+          <button id="postJE" class="primary" type="button">Post Entry</button>
+        </div>
 
-* {
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
+        <div class="totals">
+          <span>Debits: <strong id="debits">0</strong></span>
+          <span>Credits: <strong id="credits">0</strong></span>
+          <span id="balanced" class="status-bad">Not Balanced</span>
+        </div>
 
-html, body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-}
+        <div id="feedback" class="feedback"></div>
+      </section>
 
-/* Utility */
-.is-hidden {
-  display: none !important;
-}
+      <section class="card wide">
+        <h2>Financial Statements (Live)</h2>
+        <div class="statements">
+          <section class="statement-panel">
+            <div id="incomeStmt" class="statement-box"></div>
+          </section>
 
-/* =========================
-   LANDING PAGE
-========================= */
-.landing-page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
+          <section class="statement-panel">
+            <div id="balanceSheet" class="statement-box"></div>
+          </section>
 
-.landing-card {
-  max-width: 720px;
-  width: 100%;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 40px 32px;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
+          <section class="statement-panel">
+            <div id="equityStmt" class="statement-box"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
 
-.eyebrow {
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--auburn-orange);
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.landing-card h1 {
-  margin: 0 0 16px;
-  font-size: 2.1rem;
-  color: var(--auburn-navy);
-}
-
-.learning-objective {
-  color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.6;
-  margin-bottom: 28px;
-}
-
-/* =========================
-   HEADER
-========================= */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--border);
-  background: var(--card);
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: var(--auburn-navy);
-  font-weight: 700;
-}
-
-.pill {
-  background: var(--auburn-navy);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-/* =========================
-   LAYOUT
-========================= */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 20px;
-}
-
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--auburn-navy);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-}
-
-.card h2 {
-  margin-top: 0;
-  color: var(--auburn-navy);
-}
-
-.card h3 {
-  color: var(--auburn-navy);
-  font-weight: 600;
-}
-
-.card.wide {
-  grid-column: 1 / -1;
-}
-
-/* =========================
-   TRANSACTION BOX
-========================= */
-.prompt {
-  background: var(--card-soft);
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  padding: 12px;
-  margin-top: 10px;
-}
-
-/* =========================
-   BUTTONS
-========================= */
-button {
-  background: white;
-  border: 1px solid var(--border-strong);
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.15s ease;
-}
-
-button:hover {
-  border-color: var(--auburn-orange);
-  color: var(--auburn-orange);
-}
-
-button.primary {
-  background: var(--auburn-orange);
-  color: white;
-  border-color: var(--auburn-orange);
-}
-
-button.primary:hover {
-  background: #d9651d;
-}
-
-.large-button {
-  padding: 12px 20px;
-  font-size: 1rem;
-}
-
-/* =========================
-   JOURNAL ENTRY
-========================= */
-.je-line {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 0.3fr;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-select, input {
-  width: 100%;
-  padding: 10px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
-  background: white;
-}
-
-.remove {
-  color: var(--bad);
-  border: none;
-  background: transparent;
-  font-size: 20px;
-}
-
-/* =========================
-   TOTALS / STATUS
-========================= */
-.totals {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  color: var(--muted);
-}
-
-.status-good {
-  color: var(--ok);
-  font-weight: 700;
-}
-
-.status-bad {
-  color: var(--bad);
-  font-weight: 700;
-}
-
-/* =========================
-   STATEMENTS
-========================= */
-.statements {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-}
-
-.statement-box {
-  background: var(--card-soft);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--auburn-navy);
-  border-radius: var(--radius);
-  padding: 16px;
-  min-height: 280px;
-}
-
-.statement-title {
-  text-align: center;
-  font-weight: 700;
-  color: var(--auburn-navy);
-  margin-bottom: 4px;
-}
-
-.statement-subtitle {
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.92rem;
-  margin-bottom: 16px;
-}
-
-.statement-section {
-  margin-top: 14px;
-}
-
-.statement-section-label {
-  font-weight: 700;
-  color: var(--auburn-navy);
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  letter-spacing: 0.03em;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 4px;
-}
-
-.statement-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  padding: 4px 0;
-  align-items: end;
-}
-
-.statement-label {
-  color: var(--text);
-}
-
-.statement-label.indent {
-  padding-left: 18px;
-}
-
-.statement-amount {
-  min-width: 90px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.statement-total {
-  margin-top: 4px;
-  padding-top: 6px;
-  border-top: 1px solid var(--border-strong);
-  font-weight: 700;
-}
-
-.statement-grand-total {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 2px solid var(--auburn-navy);
-  font-weight: 700;
-}
-
-.statement-note {
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 0.92rem;
-}
-
-.statement-eq {
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border-strong);
-  color: var(--auburn-navy);
-  font-weight: 600;
-}
-
-/* =========================
-   FEEDBACK
-========================= */
-.feedback {
-  margin-top: 10px;
-  min-height: 40px;
-  font-size: 0.95rem;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .statements {
-    grid-template-columns: 1fr;
-  }
-}
+  <script type="module" src="./app.js?v=7"></script>
+</body>
+</html>
