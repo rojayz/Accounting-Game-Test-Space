@@ -19,12 +19,6 @@ function newLine() {
   };
 }
 
-function fmt(n) {
-  const sign = n < 0 ? "-" : "";
-  const abs = Math.abs(n);
-  return sign + abs.toLocaleString(undefined, { maximumFractionDigits: 0 });
-}
-
 function accountById(id) {
   return COA.find((account) => account.id === id);
 }
@@ -44,6 +38,23 @@ function totals() {
     .reduce((sum, line) => sum + Number(line.amount || 0), 0);
 
   return { d, c };
+}
+
+function moneyHTML(n) {
+  const abs = Math.abs(n).toLocaleString();
+  return n < 0 ? `(${abs})` : abs;
+}
+
+function rowHTML(label, amount, options = {}) {
+  const labelClass = options.indent ? "statement-label indent" : "statement-label";
+  const rowClass = options.rowClass ? `statement-row ${options.rowClass}` : "statement-row";
+
+  return `
+    <div class="${rowClass}">
+      <div class="${labelClass}">${label}</div>
+      <div class="statement-amount">${moneyHTML(amount)}</div>
+    </div>
+  `;
 }
 
 function renderTransaction() {
@@ -109,9 +120,7 @@ function renderJELines() {
     removeButton.textContent = "✕";
 
     removeButton.addEventListener("click", () => {
-      if (je.length <= 1) {
-        return;
-      }
+      if (je.length <= 1) return;
       je.splice(i, 1);
       renderJELines();
       renderTotals();
@@ -215,29 +224,10 @@ function buildStatements() {
   };
 }
 
-function moneyHTML(n) {
-  return n < 0
-    ? `(${Math.abs(n).toLocaleString()})`
-    : n.toLocaleString();
-}
-
-function rowHTML(label, amount, options = {}) {
-  const labelClass = options.indent ? "statement-label indent" : "statement-label";
-  const rowClass = options.rowClass ? `statement-row ${options.rowClass}` : "statement-row";
-
-  return `
-    <div class="${rowClass}">
-      <div class="${labelClass}">${label}</div>
-      <div class="statement-amount">${moneyHTML(amount)}</div>
-    </div>
-  `;
-}
-
 function renderStatements() {
   const statements = buildStatements();
 
-  // Income Statement
-  let incomeHTML = `
+  $("incomeStmt").innerHTML = `
     <div class="statement-title">Income Statement</div>
     <div class="statement-subtitle">For the Current Period</div>
 
@@ -262,10 +252,7 @@ function renderStatements() {
     </div>
   `;
 
-  $("incomeStmt").innerHTML = incomeHTML;
-
-  // Balance Sheet
-  let balanceHTML = `
+  $("balanceSheet").innerHTML = `
     <div class="statement-title">Balance Sheet</div>
     <div class="statement-subtitle">As of the Current Date</div>
 
@@ -298,10 +285,7 @@ function renderStatements() {
     </div>
   `;
 
-  $("balanceSheet").innerHTML = balanceHTML;
-
-  // Statement of Stockholders' Equity
-  let equityHTML = `
+  $("equityStmt").innerHTML = `
     <div class="statement-title">Statement of Stockholders' Equity</div>
     <div class="statement-subtitle">For the Current Period</div>
 
@@ -318,8 +302,6 @@ function renderStatements() {
       ${rowHTML("Ending Retained Earnings", statements.equity.endRE, { rowClass: "statement-grand-total" })}
     </div>
   `;
-
-  $("equityStmt").innerHTML = equityHTML;
 }
 
 function tryPostJE() {
