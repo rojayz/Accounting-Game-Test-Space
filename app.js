@@ -254,10 +254,10 @@ const gameWrapper = $("gameWrapper");
 const startGameBtn = $("startGame");
 
 if (startGameBtn) {
-  startGameBtn.onclick = () => {
+  startGameBtn.addEventListener("click", () => {
     landingPage.hidden = true;
     gameWrapper.hidden = false;
-  };
+  });
 }
 renderTransaction();
 renderJELines();
