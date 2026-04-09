@@ -363,12 +363,38 @@ function clearFeedback() {
   $("feedback").className = "feedback";
 }
 
+function getFinalMessage(score) {
+  if (score <= 5) {
+    return `You scored a ${score} out of 10. You need to review these transactions more.`;
+  }
+
+  if (score >= 6 && score <= 8) {
+    return `You scored a ${score} out of 10. You're on your way to knowing how to record these transactions but could use a little more practice.`;
+  }
+
+  if (score === 9) {
+    return `You scored a ${score} out of 10. You're almost at 100, keep it up!`;
+  }
+
+  return `WOW! You got them all correct! Go have a drink on Dr. Brandon.`;
+}
+
+function showResultsOverlay() {
+  $("resultTitle").textContent = "Round Complete";
+  $("resultMessage").textContent = getFinalMessage(correctAnswers);
+  $("resultsOverlay").classList.remove("is-hidden");
+}
+
+function hideResultsOverlay() {
+  $("resultsOverlay").classList.add("is-hidden");
+}
+
 function finishGame() {
   $("txPrompt").textContent = "Game Complete";
-  $("feedback").textContent =
-    `🏁 Final Score: ${correctAnswers} / ${gameTransactions.length}\n\nRefresh the page to play again.`;
-  $("feedback").className = "feedback success";
+  $("feedback").textContent = "";
+  $("feedback").className = "feedback";
   updateButtonStates();
+  showResultsOverlay();
 }
 
 function moveToNextTransaction() {
@@ -437,6 +463,28 @@ function showGame() {
   $("gameWrapper").classList.remove("is-hidden");
 }
 
+function restartGame() {
+  hideResultsOverlay();
+
+  txIndex = 0;
+  gameTransactions = getRandomTransactions(TRANSACTIONS, 10);
+  answeredTransactions = new Set();
+  lockedTransactions = new Set();
+  correctAnswers = 0;
+
+  Object.keys(ledger).forEach((key) => {
+    ledger[key] = 0;
+  });
+
+  je = [newLine(), newLine()];
+
+  updateScoreDisplay();
+  renderTransaction();
+  renderJELines();
+  renderStatements();
+  clearFeedback();
+}
+
 function bindEvents() {
   $("startGame").addEventListener("click", showGame);
 
@@ -458,6 +506,7 @@ function bindEvents() {
   });
 
   $("postJE").addEventListener("click", tryPostJE);
+  $("playAgainBtn").addEventListener("click", restartGame);
 }
 
 function init() {
@@ -473,6 +522,7 @@ function init() {
   renderJELines();
   renderStatements();
   clearFeedback();
+  hideResultsOverlay();
 }
 
 init();
