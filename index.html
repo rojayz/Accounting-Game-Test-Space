@@ -3,194 +3,60 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Journal Entry → Financial Statements</title>
-  <link rel="stylesheet" href="./style.css?v=100" />
+  <title>Accounting Journal Entry Game</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <h1>Journal Entry → Financial Statements</h1>
-      <div class="score-pill">Score: <span id="scoreValue">0</span></div>
-    </header>
+  <header class="header">
+    <h1>Journal Entry → Financial Statements</h1>
+    <div id="score" class="pill">Score: 0</div>
+  </header>
 
-    <section class="top-controls card">
-      <div class="controls-header">
-        <div class="controls-left">
-          <div class="section-label">TRANSACTION</div>
-          <div id="transactionCounter" class="small-label">Transaction shown: 1 / 9</div>
-        </div>
-        <div id="showingText" class="small-label right-label">Showing transaction 1 of 9</div>
+  <main class="grid">
+    <section class="card">
+      <h2>Transaction</h2>
+      <div id="txPrompt" class="prompt"></div>
+      <div class="row">
+        <button id="prevTx">◀</button>
+        <button id="nextTx">Next Transaction ▶</button>
       </div>
+      <div id="feedback" class="feedback"></div>
+    </section>
 
-      <div class="slider-wrap">
-        <input id="transactionSlider" type="range" min="1" max="9" value="1" />
+    <section class="card">
+      <h2>Journal Entry</h2>
+      <div id="jeLines"></div>
+      <div class="row">
+        <button id="addLine">+ Add line</button>
+        <button id="clearJE">Clear</button>
+        <button id="postJE" class="primary">Post Entry</button>
       </div>
-
-      <div class="top-grid">
-        <!-- LEFT: TRANSACTION LIST -->
-        <div class="transaction-card card-inner">
-          <div class="panel-header">
-            <div class="section-label">TRANSACTION LIST</div>
-            <button id="toggleListBtn" class="ghost-btn" type="button">Hide</button>
-          </div>
-
-          <div id="transactionList" class="transaction-list"></div>
-        </div>
-
-        <!-- RIGHT: CURRENT TRANSACTION + JE -->
-        <div class="entry-card card-inner">
-          <h2 id="selectedTransactionTitle" class="transaction-title">Jan 15: Provided services on account ($4,300)</h2>
-
-          <div class="journal-card">
-            <div class="section-label">JOURNAL ENTRY</div>
-
-            <table class="journal-table">
-              <thead>
-                <tr>
-                  <th>Account Title</th>
-                  <th>Dr.</th>
-                  <th>Cr.</th>
-                </tr>
-              </thead>
-              <tbody id="journalTableBody"></tbody>
-            </table>
-
-            <div class="entry-note">Effects are shown automatically for this transaction.</div>
-          </div>
-
-          <div class="nav-row">
-            <button id="prevBtn" class="nav-btn secondary" type="button">← Previous transaction</button>
-            <button id="nextBtn" class="nav-btn primary" type="button">Next transaction →</button>
-          </div>
-
-          <div id="jumpText" class="jump-text">Jumped to transaction 1 of 9.</div>
-        </div>
+      <div class="totals">
+        <div>Debits: <span id="debits">0</span></div>
+        <div>Credits: <span id="credits">0</span></div>
+        <div id="balanced" class="pill">Not Balanced</div>
       </div>
     </section>
 
-    <section class="statements-grid">
-      <!-- INCOME STATEMENT -->
-      <div class="statement-card card">
-        <div class="section-label">INCOME STATEMENT</div>
-        <div class="statement-body" id="incomeStatement">
-          <div class="statement-row total-row">
-            <span class="row-label">Revenue</span>
-            <span id="chgRevenue" class="row-change"></span>
-            <span id="valRevenue" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row">
-            <span class="row-label">Expenses</span>
-            <span id="chgExpenses" class="row-change"></span>
-            <span id="valExpenses" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">Net Income</span>
-            <span id="chgNetIncome" class="row-change"></span>
-            <span id="valNetIncome" class="row-value">$0</span>
-          </div>
+    <section class="card wide">
+      <h2>Financial Statements (Live)</h2>
+      <div class="statements">
+        <div>
+          <h3>Income Statement</h3>
+          <pre id="incomeStmt"></pre>
         </div>
-      </div>
-
-      <!-- BALANCE SHEET -->
-      <div class="statement-card card">
-        <div class="section-label">BALANCE SHEET</div>
-        <div class="statement-body" id="balanceSheet">
-          <div class="statement-row">
-            <span class="row-label">Cash</span>
-            <span id="chgCash" class="row-change"></span>
-            <span id="valCash" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row">
-            <span class="row-label">Other Assets</span>
-            <span id="chgOtherAssets" class="row-change"></span>
-            <span id="valOtherAssets" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">Total Assets</span>
-            <span id="chgTotalAssets" class="row-change"></span>
-            <span id="valTotalAssets" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row">
-            <span class="row-label">Liabilities</span>
-            <span id="chgLiabilities" class="row-change"></span>
-            <span id="valLiabilities" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">Total Liabilities</span>
-            <span id="chgTotalLiabilities" class="row-change"></span>
-            <span id="valTotalLiabilities" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row">
-            <span class="row-label">Common Stock</span>
-            <span id="chgCommonStock" class="row-change"></span>
-            <span id="valCommonStock" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row">
-            <span class="row-label">Retained Earnings (Ending RE)</span>
-            <span id="chgRetainedEarnings" class="row-change"></span>
-            <span id="valRetainedEarnings" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">Total Equity</span>
-            <span id="chgTotalEquity" class="row-change"></span>
-            <span id="valTotalEquity" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">Total Liabilities + Equity</span>
-            <span id="chgTotalLE" class="row-change"></span>
-            <span id="valTotalLE" class="row-value">$0</span>
-          </div>
+        <div>
+          <h3>Balance Sheet</h3>
+          <pre id="balanceSheet"></pre>
         </div>
-      </div>
-
-      <!-- STATEMENT OF RETAINED EARNINGS -->
-      <div class="statement-card card">
-        <div class="section-label">STATEMENT OF RETAINED EARNINGS</div>
-        <div class="statement-body">
-          <div class="statement-row">
-            <span class="row-label">Beginning RE</span>
-            <span class="row-change"></span>
-            <span id="valBeginningRE" class="row-value">$4,060</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">+ Net Income</span>
-            <span id="chgREIncome" class="row-change"></span>
-            <span id="valREIncome" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row">
-            <span class="row-label">- Dividends</span>
-            <span id="chgDividends" class="row-change"></span>
-            <span id="valDividends" class="row-value">$0</span>
-          </div>
-
-          <div class="statement-row total-row">
-            <span class="row-label">Ending RE</span>
-            <span id="chgEndingRE" class="row-change"></span>
-            <span id="valEndingRE" class="row-value">$4,060</span>
-          </div>
+        <div>
+          <h3>Statement of Stockholders' Equity</h3>
+          <pre id="equityStmt"></pre>
         </div>
-      </div>
-
-      <!-- OPTIONAL SUMMARY / FEEDBACK -->
-      <div class="statement-card card">
-        <div class="section-label">CURRENT TRANSACTION EFFECT</div>
-        <div id="effectSummary" class="effect-summary"></div>
       </div>
     </section>
-  </div>
+  </main>
 
-  <script src="./script.js?v=100"></script>
+  <script type="module" src="./app.js"></script>
 </body>
 </html>
