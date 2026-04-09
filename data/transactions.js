@@ -60,4 +60,4 @@ export const TRANSACTIONS = [
     explain:"Depreciation Expense increases; Equipment carrying amount decreases (MVP simplification)."
   }
 ];
-``
+
