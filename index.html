@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Accounting Journal Entry Game</title>
-  <link rel="stylesheet" href="./styles.css?v=2" />
-  <script type="module" src="./app.js?v=2"></script>
+  <link rel="stylesheet" href="./styles.css?v=7" />
 </head>
 <body>
   <div id="landingPage" class="landing-page">
     <div class="landing-card">
-      <p class="eyebrow">Accounting Learning Game</p>
-      <h1>Journal Entry → Financial Statements</h1>
+      <p class="eyebrow">Auburn Accounting Learning Game</p>
+      <h1>Journal Entry Practice</h1>
       <p class="learning-objective">
-        You will practice translating simple business events into properly formatted journal entries using correct account classifications and debit/credit rules.
+        You will practice translating simple business events into properly formatted
+        journal entries using correct account classifications and debit/credit rules.
       </p>
       <button id="startGame" class="primary large-button" type="button">Start Game</button>
     </div>
@@ -21,7 +21,10 @@
 
   <div id="gameWrapper" class="app-shell is-hidden">
     <header class="header">
-      <h1>Journal Entry → Financial Statements</h1>
+      <div>
+        <h1>Journal Entry → Financial Statements</h1>
+        <p class="subhead">Auburn University Accounting Game</p>
+      </div>
       <div id="score" class="pill">Score: 0</div>
     </header>
 
@@ -57,22 +60,22 @@
       <section class="card wide">
         <h2>Financial Statements (Live)</h2>
         <div class="statements">
-          <div class="statement-panel">
+          <section class="statement-panel">
             <div id="incomeStmt" class="statement-box"></div>
-          </div>
-      
-          <div class="statement-panel">
+          </section>
+
+          <section class="statement-panel">
             <div id="balanceSheet" class="statement-box"></div>
-          </div>
-      
-          <div class="statement-panel">
+          </section>
+
+          <section class="statement-panel">
             <div id="equityStmt" class="statement-box"></div>
-          </div>
+          </section>
         </div>
       </section>
     </main>
   </div>
 
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=7"></script>
 </body>
 </html>
