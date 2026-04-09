@@ -215,60 +215,111 @@ function buildStatements() {
   };
 }
 
+function moneyHTML(n) {
+  return n < 0
+    ? `(${Math.abs(n).toLocaleString()})`
+    : n.toLocaleString();
+}
+
+function rowHTML(label, amount, options = {}) {
+  const labelClass = options.indent ? "statement-label indent" : "statement-label";
+  const rowClass = options.rowClass ? `statement-row ${options.rowClass}` : "statement-row";
+
+  return `
+    <div class="${rowClass}">
+      <div class="${labelClass}">${label}</div>
+      <div class="statement-amount">${moneyHTML(amount)}</div>
+    </div>
+  `;
+}
+
 function renderStatements() {
   const statements = buildStatements();
 
-  const incomeLines = [];
-  incomeLines.push("REVENUES");
-  for (const account of statements.income.revenues) {
-    incomeLines.push(` ${account.name}: ${fmt(displayAmount(account))}`);
-  }
-  incomeLines.push(`Total Revenues: ${fmt(statements.income.revTotal)}`);
-  incomeLines.push("");
-  incomeLines.push("EXPENSES");
-  for (const account of statements.income.expenses) {
-    incomeLines.push(` ${account.name}: ${fmt(displayAmount(account))}`);
-  }
-  incomeLines.push(`Total Expenses: ${fmt(statements.income.expTotal)}`);
-  incomeLines.push("");
-  incomeLines.push(`Net Income: ${fmt(statements.income.netIncome)}`);
-  $("incomeStmt").textContent = incomeLines.join("\n");
+  // Income Statement
+  let incomeHTML = `
+    <div class="statement-title">Income Statement</div>
+    <div class="statement-subtitle">For the Current Period</div>
 
-  const balanceLines = [];
-  balanceLines.push("ASSETS");
-  for (const account of statements.balance.assets) {
-    balanceLines.push(` ${account.name}: ${fmt(displayAmount(account))}`);
-  }
-  balanceLines.push(`Total Assets: ${fmt(statements.balance.bsAssets)}`);
-  balanceLines.push("");
-  balanceLines.push("LIABILITIES");
-  for (const account of statements.balance.liabilities) {
-    balanceLines.push(` ${account.name}: ${fmt(displayAmount(account))}`);
-  }
-  balanceLines.push(`Total Liabilities: ${fmt(statements.balance.bsLiabilities)}`);
-  balanceLines.push("");
-  balanceLines.push("EQUITY");
-  balanceLines.push(` Common Stock: ${fmt(statements.equity.commonStock)}`);
-  balanceLines.push(` Retained Earnings: ${fmt(statements.equity.endRE)}`);
-  balanceLines.push(`Total Equity: ${fmt(statements.balance.bsEquity)}`);
-  balanceLines.push("");
-  balanceLines.push(
-    `A = L + E ? ${fmt(statements.balance.bsAssets)} = ${fmt(
-      statements.balance.bsLiabilities
-    )} + ${fmt(statements.balance.bsEquity)}`
-  );
-  $("balanceSheet").textContent = balanceLines.join("\n");
+    <div class="statement-section">
+      <div class="statement-section-label">Revenues</div>
+      ${statements.income.revenues
+        .map((account) => rowHTML(account.name, displayAmount(account), { indent: true }))
+        .join("")}
+      ${rowHTML("Total Revenues", statements.income.revTotal, { rowClass: "statement-total" })}
+    </div>
 
-  const equityLines = [];
-  equityLines.push("Contributed Capital");
-  equityLines.push(` Common Stock: ${fmt(statements.equity.commonStock)}`);
-  equityLines.push("");
-  equityLines.push("Retained Earnings");
-  equityLines.push(` Beginning RE: ${fmt(statements.equity.beginRE)}`);
-  equityLines.push(` + Net Income: ${fmt(statements.equity.netIncome)}`);
-  equityLines.push(` - Dividends: ${fmt(statements.equity.dividends)}`);
-  equityLines.push(` Ending RE: ${fmt(statements.equity.endRE)}`);
-  $("equityStmt").textContent = equityLines.join("\n");
+    <div class="statement-section">
+      <div class="statement-section-label">Expenses</div>
+      ${statements.income.expenses
+        .map((account) => rowHTML(account.name, displayAmount(account), { indent: true }))
+        .join("")}
+      ${rowHTML("Total Expenses", statements.income.expTotal, { rowClass: "statement-total" })}
+    </div>
+
+    <div class="statement-section">
+      ${rowHTML("Net Income", statements.income.netIncome, { rowClass: "statement-grand-total" })}
+    </div>
+  `;
+
+  $("incomeStmt").innerHTML = incomeHTML;
+
+  // Balance Sheet
+  let balanceHTML = `
+    <div class="statement-title">Balance Sheet</div>
+    <div class="statement-subtitle">As of the Current Date</div>
+
+    <div class="statement-section">
+      <div class="statement-section-label">Assets</div>
+      ${statements.balance.assets
+        .map((account) => rowHTML(account.name, displayAmount(account), { indent: true }))
+        .join("")}
+      ${rowHTML("Total Assets", statements.balance.bsAssets, { rowClass: "statement-total" })}
+    </div>
+
+    <div class="statement-section">
+      <div class="statement-section-label">Liabilities</div>
+      ${statements.balance.liabilities
+        .map((account) => rowHTML(account.name, displayAmount(account), { indent: true }))
+        .join("")}
+      ${rowHTML("Total Liabilities", statements.balance.bsLiabilities, { rowClass: "statement-total" })}
+    </div>
+
+    <div class="statement-section">
+      <div class="statement-section-label">Stockholders' Equity</div>
+      ${rowHTML("Common Stock", statements.equity.commonStock, { indent: true })}
+      ${rowHTML("Retained Earnings", statements.equity.endRE, { indent: true })}
+      ${rowHTML("Total Equity", statements.balance.bsEquity, { rowClass: "statement-total" })}
+    </div>
+
+    <div class="statement-eq">
+      Assets = Liabilities + Equity<br>
+      ${moneyHTML(statements.balance.bsAssets)} = ${moneyHTML(statements.balance.bsLiabilities)} + ${moneyHTML(statements.balance.bsEquity)}
+    </div>
+  `;
+
+  $("balanceSheet").innerHTML = balanceHTML;
+
+  // Statement of Stockholders' Equity
+  let equityHTML = `
+    <div class="statement-title">Statement of Stockholders' Equity</div>
+    <div class="statement-subtitle">For the Current Period</div>
+
+    <div class="statement-section">
+      <div class="statement-section-label">Contributed Capital</div>
+      ${rowHTML("Common Stock", statements.equity.commonStock, { indent: true })}
+    </div>
+
+    <div class="statement-section">
+      <div class="statement-section-label">Retained Earnings</div>
+      ${rowHTML("Beginning Retained Earnings", statements.equity.beginRE, { indent: true })}
+      ${rowHTML("Add: Net Income", statements.equity.netIncome, { indent: true })}
+      ${rowHTML("Less: Dividends", statements.equity.dividends, { indent: true })}
+      ${rowHTML("Ending Retained Earnings", statements.equity.endRE, { rowClass: "statement-grand-total" })}
+    </div>
+  `;
+
+  $("equityStmt").innerHTML = equityHTML;
 }
 
 function tryPostJE() {
