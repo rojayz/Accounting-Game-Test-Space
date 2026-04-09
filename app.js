@@ -3,10 +3,10 @@ import { TRANSACTIONS } from "./data/transactions.js";
 
 const $ = (id) => document.getElementById(id);
 
-let score = 0;
 let txIndex = 0;
 let gameTransactions = [];
 let answeredTransactions = new Set();
+let lockedTransactions = new Set();
 let correctAnswers = 0;
 
 // Internal ledger uses debit-positive balances
@@ -20,6 +20,21 @@ function newLine() {
     dc: "D",
     amount: 0
   };
+}
+
+function shuffleArray(array) {
+  const copy = [...array];
+
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+
+  return copy;
+}
+
+function getRandomTransactions(allTransactions, count) {
+  return shuffleArray(allTransactions).slice(0, count);
 }
 
 function displayAmount(account) {
@@ -41,12 +56,7 @@ function totals() {
 
 function moneyHTML(n) {
   const abs = Math.abs(n).toLocaleString();
-
-  if (n < 0) {
-    return `($${abs})`;
-  }
-
-  return `$${abs}`;
+  return n < 0 ? `($${abs})` : `$${abs}`;
 }
 
 function rowHTML(label, amount, options = {}) {
@@ -60,37 +70,45 @@ function rowHTML(label, amount, options = {}) {
     </div>
   `;
 }
-function shuffleArray(array) {
-  const copy = [...array];
 
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-
-  return copy;
-}
-
-function getRandomTransactions(allTransactions, count) {
-  return shuffleArray(allTransactions).slice(0, count);
+function currentTransaction() {
+  return gameTransactions[txIndex];
 }
 
 function renderTransaction() {
-  const tx = gameTransactions[txIndex];
-$("txPrompt").textContent = `${txIndex + 1}/${gameTransactions.length} — ${tx.prompt}`;
-  $("feedback").textContent = "";
-  $("feedback").style.color = "var(--muted)";
+  const tx = currentTransaction();
+
+  if (!tx) {
+    $("txPrompt").textContent = "No transaction available.";
+    return;
+  }
+
+  const locked = lockedTransactions.has(tx.id);
+  const answered = answeredTransactions.has(tx.id);
+
+  let status = "";
+  if (locked && answered) {
+    status = " — Answered";
+  }
+
+  $("txPrompt").textContent = `${txIndex + 1}/${gameTransactions.length} — ${tx.prompt}${status}`;
+  updateButtonStates();
 }
 
 function renderJELines() {
   const container = $("jeLines");
   container.innerHTML = "";
 
+  const tx = currentTransaction();
+  const locked = tx ? lockedTransactions.has(tx.id) : false;
+
   je.forEach((line, i) => {
     const wrapper = document.createElement("div");
     wrapper.className = "je-line";
 
     const accountSelect = document.createElement("select");
+    accountSelect.disabled = locked;
+
     COA.forEach((account) => {
       const option = document.createElement("option");
       option.value = account.id;
@@ -98,12 +116,15 @@ function renderJELines() {
       option.selected = account.id === line.accountId;
       accountSelect.appendChild(option);
     });
+
     accountSelect.addEventListener("change", (event) => {
       je[i].accountId = event.target.value;
       renderTotals();
     });
 
     const dcSelect = document.createElement("select");
+    dcSelect.disabled = locked;
+
     [
       { value: "D", label: "Debit" },
       { value: "C", label: "Credit" }
@@ -114,6 +135,7 @@ function renderJELines() {
       option.selected = item.value === line.dc;
       dcSelect.appendChild(option);
     });
+
     dcSelect.addEventListener("change", (event) => {
       je[i].dc = event.target.value;
       renderTotals();
@@ -124,6 +146,8 @@ function renderJELines() {
     amountInput.min = "0";
     amountInput.step = "1";
     amountInput.value = line.amount;
+    amountInput.disabled = locked;
+
     amountInput.addEventListener("input", (event) => {
       je[i].amount = Number(event.target.value || 0);
       renderTotals();
@@ -133,6 +157,8 @@ function renderJELines() {
     removeButton.className = "remove";
     removeButton.type = "button";
     removeButton.textContent = "✕";
+    removeButton.disabled = locked;
+
     removeButton.addEventListener("click", () => {
       if (je.length <= 1) return;
       je.splice(i, 1);
@@ -155,8 +181,8 @@ function renderTotals() {
   const { d, c } = totals();
   const isBalanced = d > 0 && d === c;
 
-  $("debits").textContent = d.toLocaleString();
-  $("credits").textContent = c.toLocaleString();
+  $("debits").textContent = moneyHTML(d);
+  $("credits").textContent = moneyHTML(c);
   $("balanced").textContent = isBalanced ? "Balanced" : "Not Balanced";
   $("balanced").className = isBalanced ? "status-good" : "status-bad";
 }
@@ -243,7 +269,7 @@ function renderStatements() {
 
   $("incomeStmt").innerHTML = `
     <div class="statement-title">Income Statement</div>
-    <div class="statement-subtitle">For the Current Period</div>
+    <div class="statement-subtitle">For the Current Round</div>
 
     <div class="statement-section">
       <div class="statement-section-label">Revenues</div>
@@ -268,7 +294,7 @@ function renderStatements() {
 
   $("balanceSheet").innerHTML = `
     <div class="statement-title">Balance Sheet</div>
-    <div class="statement-subtitle">As of the Current Date</div>
+    <div class="statement-subtitle">Current Position</div>
 
     <div class="statement-section">
       <div class="statement-section-label">Assets</div>
@@ -301,7 +327,7 @@ function renderStatements() {
 
   $("equityStmt").innerHTML = `
     <div class="statement-title">Statement of Stockholders' Equity</div>
-    <div class="statement-subtitle">For the Current Period</div>
+    <div class="statement-subtitle">For the Current Round</div>
 
     <div class="statement-section">
       <div class="statement-section-label">Contributed Capital</div>
@@ -318,7 +344,56 @@ function renderStatements() {
   `;
 }
 
+function updateScoreDisplay() {
+  $("score").textContent = `Score: ${correctAnswers} / ${gameTransactions.length}`;
+}
+
+function updateButtonStates() {
+  const tx = currentTransaction();
+  if (!tx) return;
+
+  const locked = lockedTransactions.has(tx.id);
+
+  $("postJE").disabled = locked;
+  $("addLine").disabled = locked;
+  $("clearJE").disabled = locked;
+  $("prevTx").disabled = txIndex === 0;
+  $("nextTx").disabled = txIndex === gameTransactions.length - 1;
+}
+
+function resetJEForNextQuestion() {
+  je = [newLine(), newLine()];
+  renderJELines();
+}
+
+function finishGame() {
+  $("feedback").textContent = `🏁 Game complete. Final score: ${correctAnswers} out of ${gameTransactions.length}. Refresh the page to play again.`;
+  $("feedback").style.color = "var(--auburn-navy)";
+  updateButtonStates();
+}
+
+function moveToNextTransaction() {
+  if (txIndex < gameTransactions.length - 1) {
+    txIndex += 1;
+    resetJEForNextQuestion();
+    renderTransaction();
+    updateButtonStates();
+  } else {
+    finishGame();
+  }
+}
+
 function tryPostJE() {
+  const tx = currentTransaction();
+
+  if (!tx) return;
+
+  if (lockedTransactions.has(tx.id)) {
+    $("feedback").textContent = "This transaction is already locked.";
+    $("feedback").style.color = "var(--auburn-navy)";
+    return;
+  }
+
   const { d, c } = totals();
 
   if (!(d > 0 && d === c)) {
@@ -327,37 +402,34 @@ function tryPostJE() {
     return;
   }
 
-  const tx = gameTransactions[txIndex];
   const cleanLines = je.filter((line) => Number(line.amount) > 0);
   const correct = linesEqualAsMultiset(cleanLines, tx.entry);
 
-  if (answeredTransactions.has(tx.id)) {
-    $("feedback").textContent = "You already answered this transaction.";
-    $("feedback").style.color = "var(--auburn-navy)";
-    return;
-  }
-
   answeredTransactions.add(tx.id);
+  lockedTransactions.add(tx.id);
 
   if (correct) {
-    score += 10;
     correctAnswers += 1;
-    $("feedback").textContent = `✅ Correct! Posted.\n${tx.explain}`;
+    $("feedback").textContent = `✅ Correct! ${tx.explain}`;
     $("feedback").style.color = "var(--ok)";
-
     postToLedger(cleanLines);
     renderStatements();
   } else {
-    $("feedback").textContent =
-      "❌ Incorrect.\nHint: think about which accounts change and their normal balances.";
+    $("feedback").textContent = `❌ Incorrect. ${tx.explain}`;
     $("feedback").style.color = "var(--bad)";
   }
 
-  $("score").textContent = `Score: ${correctAnswers} / ${gameTransactions.length}`;
+  updateScoreDisplay();
+  renderTransaction();
+  renderJELines();
 
-  if (answeredTransactions.size === gameTransactions.length) {
-    $("feedback").textContent += `\n\nGame complete. Final score: ${correctAnswers} out of ${gameTransactions.length}. Refresh the page to start a new round.`;
-  }
+  setTimeout(() => {
+    if (answeredTransactions.size === gameTransactions.length) {
+      finishGame();
+    } else {
+      moveToNextTransaction();
+    }
+  }, 900);
 }
 
 function showGame() {
@@ -369,11 +441,17 @@ function bindEvents() {
   $("startGame").addEventListener("click", showGame);
 
   $("addLine").addEventListener("click", () => {
+    const tx = currentTransaction();
+    if (tx && lockedTransactions.has(tx.id)) return;
+
     je.push(newLine());
     renderJELines();
   });
 
   $("clearJE").addEventListener("click", () => {
+    const tx = currentTransaction();
+    if (tx && lockedTransactions.has(tx.id)) return;
+
     je = [newLine(), newLine()];
     renderJELines();
     $("feedback").textContent = "";
@@ -384,11 +462,13 @@ function bindEvents() {
 
   $("nextTx").addEventListener("click", () => {
     txIndex = Math.min(txIndex + 1, gameTransactions.length - 1);
+    resetJEForNextQuestion();
     renderTransaction();
   });
 
   $("prevTx").addEventListener("click", () => {
     txIndex = Math.max(txIndex - 1, 0);
+    resetJEForNextQuestion();
     renderTransaction();
   });
 }
@@ -396,12 +476,11 @@ function bindEvents() {
 function init() {
   gameTransactions = getRandomTransactions(TRANSACTIONS, 10);
   txIndex = 0;
-  score = 0;
   correctAnswers = 0;
   answeredTransactions = new Set();
+  lockedTransactions = new Set();
 
-  $("score").textContent = `Score: 0 / ${gameTransactions.length}`;
-
+  updateScoreDisplay();
   bindEvents();
   renderTransaction();
   renderJELines();
