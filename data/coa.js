@@ -6,10 +6,8 @@ export const COA = [
 
   { id: "ap", name: "Accounts Payable", type: "liability", normal: "C" },
   { id: "notes", name: "Notes Payable", type: "liability", normal: "C" },
-  { id: "unearned", name: "Unearned Revenue", type: "liability", normal: "C" },
 
   { id: "cs", name: "Common Stock", type: "equity", normal: "C" },
-  { id: "re", name: "Retained Earnings", type: "equity", normal: "C" },
   { id: "div", name: "Dividends", type: "equity", normal: "D" },
 
   { id: "rev", name: "Service Revenue", type: "revenue", normal: "C" },
