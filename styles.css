@@ -18,9 +18,6 @@ pre { background:#0e1630; border:1px solid #1e2a46; border-radius:10px; padding:
 .je-line { display:grid; grid-template-columns: 1.6fr .7fr .7fr .3fr; gap:10px; margin:10px 0; }
 select, input { width:100%; padding:10px; border-radius:10px; border:1px solid #2a3a60; background:#0e1630; color:var(--text); }
 .remove { background:transparent; border-color:transparent; color:var(--bad); font-size:18px; }
-.hidden {
-  display: none;
-}
 
 .game-shell {
   min-height: 100vh;
