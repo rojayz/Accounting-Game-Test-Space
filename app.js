@@ -249,7 +249,16 @@ $("prevTx").onclick = () => {
   txIndex = Math.max(txIndex - 1, 0);
   renderTransaction();
 };
+const landingPage = $("landingPage");
+const gameWrapper = $("gameWrapper");
+const startGameBtn = $("startGame");
 
+if (startGameBtn) {
+  startGameBtn.onclick = () => {
+    landingPage.classList.add("hidden");
+    gameWrapper.classList.remove("hidden");
+  };
+}
 renderTransaction();
 renderJELines();
 renderStatements();
