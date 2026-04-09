@@ -43,50 +43,5 @@ export const TRANSACTIONS = [
       { accountId: "rev", dc: "C", amount: 12000 }
     ],
     explain: "Cash increases; Service Revenue increases."
-  },
-  {
-    id: "t6",
-    prompt: "Performed services on account for $9,000.",
-    entry: [
-      { accountId: "ar", dc: "D", amount: 9000 },
-      { accountId: "rev", dc: "C", amount: 9000 }
-    ],
-    explain: "Accounts Receivable increases; Service Revenue increases."
-  },
-  {
-    id: "t7",
-    prompt: "Paid $2,500 rent in cash.",
-    entry: [
-      { accountId: "rentExp", dc: "D", amount: 2500 },
-      { accountId: "cash", dc: "C", amount: 2500 }
-    ],
-    explain: "Rent Expense increases; Cash decreases."
-  },
-  {
-    id: "t8",
-    prompt: "Paid $6,000 salaries in cash.",
-    entry: [
-      { accountId: "salExp", dc: "D", amount: 6000 },
-      { accountId: "cash", dc: "C", amount: 6000 }
-    ],
-    explain: "Salaries Expense increases; Cash decreases."
-  },
-  {
-    id: "t9",
-    prompt: "Supplies used during the period: $1,500.",
-    entry: [
-      { accountId: "supExp", dc: "D", amount: 1500 },
-      { accountId: "supplies", dc: "C", amount: 1500 }
-    ],
-    explain: "Supplies Expense increases; Supplies decrease."
-  },
-  {
-    id: "t10",
-    prompt: "Recorded depreciation expense on equipment: $1,000.",
-    entry: [
-      { accountId: "depExp", dc: "D", amount: 1000 },
-      { accountId: "equip", dc: "C", amount: 1000 }
-    ],
-    explain: "Depreciation Expense increases; Equipment decreases for this simplified model."
   }
 ];
