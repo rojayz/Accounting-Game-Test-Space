@@ -351,6 +351,8 @@ function updateButtonStates() {
   $("postJE").disabled = locked;
   $("addLine").disabled = locked;
   $("clearJE").disabled = locked;
+  $("nextTx").classlist.toggle("is-hidden",!locked);
+  $("nextTx").disabled = !locked;
 }
 
 function resetJEForNextQuestion() {
@@ -436,12 +438,12 @@ function tryPostJE() {
 
   if (correct) {
     correctAnswers += 1;
-    $("feedback").textContent = `✅ Correct! ${tx.explain}`;
+    $("feedback").textContent = `✅ Correct! ${tx.explain} Review your entry, then click Next Question.`;
     $("feedback").className = "feedback success";
     postToLedger(cleanLines);
     renderStatements();
   } else {
-    $("feedback").textContent = `❌ Incorrect. ${tx.explain}`;
+    $("feedback").textContent = `❌ Incorrect. ${tx.explain} Review it, then click Next Question.`;
     $("feedback").className = "feedback error";
   }
 
@@ -449,13 +451,6 @@ function tryPostJE() {
   renderTransaction();
   renderJELines();
 
-  setTimeout(() => {
-    if (answeredTransactions.size === gameTransactions.length) {
-      finishGame();
-    } else {
-      moveToNextTransaction();
-    }
-  }, 1500);
 }
 
 function showGame() {
@@ -506,6 +501,14 @@ function bindEvents() {
   });
 
   $("postJE").addEventListener("click", tryPostJE);
+  $("nextTx").addEventListener("click", () => {
+    if (answeredTransactions.size === gameTransactions.length) {
+      finishGame();
+      return;
+    }
+
+    moveToNextTransaction();
+  });
   $("playAgainBtn").addEventListener("click", restartGame);
 }
 
