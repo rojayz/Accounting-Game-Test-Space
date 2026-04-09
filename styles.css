@@ -98,11 +98,12 @@ html, body {
   margin: 0;
   font-size: 1.8rem;
   color: var(--auburn-navy);
+  font-weight: 700;
 }
 
 .pill {
-  background: #eef2f7;
-  color: var(--muted);
+  background: var(--auburn-navy);
+  color: white;
   padding: 6px 12px;
   border-radius: 999px;
   font-weight: 600;
@@ -121,6 +122,7 @@ html, body {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
+  border-top: 3px solid var(--auburn-navy);
   border-radius: var(--radius);
   padding: 16px;
   box-shadow: var(--shadow);
@@ -129,6 +131,11 @@ html, body {
 .card h2 {
   margin-top: 0;
   color: var(--auburn-navy);
+}
+
+.card h3 {
+  color: var(--auburn-navy);
+  font-weight: 600;
 }
 
 .card.wide {
@@ -236,6 +243,7 @@ select, input {
 pre {
   background: var(--card-soft);
   border: 1px solid var(--border);
+  border-left: 4px solid var(--auburn-navy);
   border-radius: var(--radius);
   padding: 12px;
   min-height: 240px;
