@@ -351,8 +351,10 @@ function updateButtonStates() {
   $("postJE").disabled = locked;
   $("addLine").disabled = locked;
   $("clearJE").disabled = locked;
-  $("nextTx").classlist.toggle("is-hidden",!locked);
   $("nextTx").disabled = !locked;
+  $("nextTx").classList.toggle("primary", locked);
+  $("nextTx").textContent =
+    locked && answeredTransactions.size === gameTransactions.length ? "Finish Round" : "Next Question";
 }
 
 function resetJEForNextQuestion() {
