@@ -357,8 +357,6 @@ function updateButtonStates() {
   $("postJE").disabled = locked;
   $("addLine").disabled = locked;
   $("clearJE").disabled = locked;
-  $("prevTx").disabled = txIndex === 0;
-  $("nextTx").disabled = txIndex === gameTransactions.length - 1;
 }
 
 function resetJEForNextQuestion() {
@@ -460,17 +458,6 @@ function bindEvents() {
 
   $("postJE").addEventListener("click", tryPostJE);
 
-  $("nextTx").addEventListener("click", () => {
-    txIndex = Math.min(txIndex + 1, gameTransactions.length - 1);
-    resetJEForNextQuestion();
-    renderTransaction();
-  });
-
-  $("prevTx").addEventListener("click", () => {
-    txIndex = Math.max(txIndex - 1, 0);
-    resetJEForNextQuestion();
-    renderTransaction();
-  });
 }
 
 function init() {
