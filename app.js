@@ -83,15 +83,7 @@ function renderTransaction() {
     return;
   }
 
-  const locked = lockedTransactions.has(tx.id);
-  const answered = answeredTransactions.has(tx.id);
-
-  let status = "";
-  if (locked && answered) {
-    status = " — Answered";
-  }
-
-  $("txPrompt").textContent = `${txIndex + 1}/${gameTransactions.length} — ${tx.prompt}${status}`;
+  $("txPrompt").textContent = `Question ${txIndex + 1} of ${gameTransactions.length} — ${tx.prompt}`;
   updateButtonStates();
 }
 
@@ -160,7 +152,9 @@ function renderJELines() {
     removeButton.disabled = locked;
 
     removeButton.addEventListener("click", () => {
+      if (locked) return;
       if (je.length <= 1) return;
+
       je.splice(i, 1);
       renderJELines();
       renderTotals();
@@ -364,9 +358,16 @@ function resetJEForNextQuestion() {
   renderJELines();
 }
 
+function clearFeedback() {
+  $("feedback").textContent = "";
+  $("feedback").className = "feedback";
+}
+
 function finishGame() {
-  $("feedback").textContent = `🏁 Game complete. Final score: ${correctAnswers} out of ${gameTransactions.length}. Refresh the page to play again.`;
-  $("feedback").style.color = "var(--auburn-navy)";
+  $("txPrompt").textContent = "Game Complete";
+  $("feedback").textContent =
+    `🏁 Final Score: ${correctAnswers} / ${gameTransactions.length}\n\nRefresh the page to play again.`;
+  $("feedback").className = "feedback success";
   updateButtonStates();
 }
 
@@ -374,6 +375,7 @@ function moveToNextTransaction() {
   if (txIndex < gameTransactions.length - 1) {
     txIndex += 1;
     resetJEForNextQuestion();
+    clearFeedback();
     renderTransaction();
     updateButtonStates();
   } else {
@@ -388,7 +390,7 @@ function tryPostJE() {
 
   if (lockedTransactions.has(tx.id)) {
     $("feedback").textContent = "This transaction is already locked.";
-    $("feedback").style.color = "var(--auburn-navy)";
+    $("feedback").className = "feedback";
     return;
   }
 
@@ -396,7 +398,7 @@ function tryPostJE() {
 
   if (!(d > 0 && d === c)) {
     $("feedback").textContent = "Entry must balance before posting.";
-    $("feedback").style.color = "var(--bad)";
+    $("feedback").className = "feedback error";
     return;
   }
 
@@ -409,12 +411,12 @@ function tryPostJE() {
   if (correct) {
     correctAnswers += 1;
     $("feedback").textContent = `✅ Correct! ${tx.explain}`;
-    $("feedback").style.color = "var(--ok)";
+    $("feedback").className = "feedback success";
     postToLedger(cleanLines);
     renderStatements();
   } else {
     $("feedback").textContent = `❌ Incorrect. ${tx.explain}`;
-    $("feedback").style.color = "var(--bad)";
+    $("feedback").className = "feedback error";
   }
 
   updateScoreDisplay();
@@ -427,7 +429,7 @@ function tryPostJE() {
     } else {
       moveToNextTransaction();
     }
-  }, 900);
+  }, 1500);
 }
 
 function showGame() {
@@ -452,12 +454,10 @@ function bindEvents() {
 
     je = [newLine(), newLine()];
     renderJELines();
-    $("feedback").textContent = "";
-    $("feedback").style.color = "var(--muted)";
+    clearFeedback();
   });
 
   $("postJE").addEventListener("click", tryPostJE);
-
 }
 
 function init() {
@@ -472,6 +472,7 @@ function init() {
   renderTransaction();
   renderJELines();
   renderStatements();
+  clearFeedback();
 }
 
 init();
