@@ -351,10 +351,9 @@ function updateButtonStates() {
   $("postJE").disabled = locked;
   $("addLine").disabled = locked;
   $("clearJE").disabled = locked;
-  $("nextTx").disabled = !locked;
-  $("nextTx").classList.toggle("primary", locked);
-  $("nextTx").textContent =
-    locked && answeredTransactions.size === gameTransactions.length ? "Finish Round" : "Next Question";
+  $("nextTx").disabled = false;
+  $("nextTx").classList.toggle("primary");
+  $("nextTx").textContent = locked && answeredTransactions.size === gameTransactions.length ? "Finish Round" : "Next Question";
 }
 
 function resetJEForNextQuestion() {
@@ -504,6 +503,13 @@ function bindEvents() {
 
   $("postJE").addEventListener("click", tryPostJE);
   $("nextTx").addEventListener("click", () => {
+    const tx = currentTransaction();
+    if (tx && !lockedTransactions.has(tx.id)) {
+      $("feedback").textContent = "Post this journal entry first, then click Next Question.";
+      $("feedback").className = "feedback";
+      return;
+    }
+
     if (answeredTransactions.size === gameTransactions.length) {
       finishGame();
       return;
