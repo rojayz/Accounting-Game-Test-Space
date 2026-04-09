@@ -423,3 +423,19 @@ input {
     justify-self: end;
   }
 }
+.je-line select:disabled,
+.je-line input:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.feedback.success {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.feedback.error {
+  color: var(--bad);
+  font-weight: 700;
+}
