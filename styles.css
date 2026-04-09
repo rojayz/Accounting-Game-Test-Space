@@ -1,81 +1,388 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Accounting Journal Entry Game</title>
-  <link rel="stylesheet" href="./styles.css?v=7" />
-</head>
-<body>
-  <div id="landingPage" class="landing-page">
-    <div class="landing-card">
-      <p class="eyebrow">Auburn Accounting Learning Game</p>
-      <h1>Journal Entry Practice</h1>
-      <p class="learning-objective">
-        You will practice translating simple business events into properly formatted
-        journal entries using correct account classifications and debit/credit rules.
-      </p>
-      <button id="startGame" class="primary large-button" type="button">Start Game</button>
-    </div>
-  </div>
+:root {
+  --bg: #f7f7f8;
+  --bg-soft: #fbfbfc;
+  --card: #ffffff;
+  --card-soft: #fafafa;
+  --text: #1f2937;
+  --muted: #6b7280;
 
-  <div id="gameWrapper" class="app-shell is-hidden">
-    <header class="header">
-      <div>
-        <h1>Journal Entry → Financial Statements</h1>
-        <p class="subhead">Auburn University Accounting Game</p>
-      </div>
-      <div id="score" class="pill">Score: 0</div>
-    </header>
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
 
-    <main class="grid">
-      <section class="card">
-        <h2>Transaction</h2>
-        <div id="txPrompt" class="prompt"></div>
-        <div class="row">
-          <button id="prevTx" type="button">◀ Previous</button>
-          <button id="nextTx" type="button">Next ▶</button>
-        </div>
-      </section>
+  --auburn-orange: #e87722;
+  --auburn-navy: #0c2340;
 
-      <section class="card">
-        <h2>Journal Entry</h2>
-        <div id="jeLines"></div>
+  --ok: #15803d;
+  --bad: #dc2626;
 
-        <div class="row">
-          <button id="addLine" type="button">+ Add line</button>
-          <button id="clearJE" type="button">Clear</button>
-          <button id="postJE" class="primary" type="button">Post Entry</button>
-        </div>
+  --radius: 14px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
 
-        <div class="totals">
-          <span>Debits: <strong id="debits">0</strong></span>
-          <span>Credits: <strong id="credits">0</strong></span>
-          <span id="balanced" class="status-bad">Not Balanced</span>
-        </div>
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
 
-        <div id="feedback" class="feedback"></div>
-      </section>
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
 
-      <section class="card wide">
-        <h2>Financial Statements (Live)</h2>
-        <div class="statements">
-          <section class="statement-panel">
-            <div id="incomeStmt" class="statement-box"></div>
-          </section>
+body {
+  line-height: 1.4;
+}
 
-          <section class="statement-panel">
-            <div id="balanceSheet" class="statement-box"></div>
-          </section>
+.is-hidden {
+  display: none !important;
+}
 
-          <section class="statement-panel">
-            <div id="equityStmt" class="statement-box"></div>
-          </section>
-        </div>
-      </section>
-    </main>
-  </div>
+/* Landing */
+.landing-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top, rgba(232, 119, 34, 0.08), transparent 28%),
+    linear-gradient(to bottom, #fcfcfd, #f7f7f8);
+}
 
-  <script type="module" src="./app.js?v=7"></script>
-</body>
-</html>
+.landing-card {
+  width: 100%;
+  max-width: 760px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 5px solid var(--auburn-orange);
+  border-radius: 18px;
+  padding: 42px 34px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--auburn-orange);
+}
+
+.landing-card h1 {
+  margin: 0 0 16px;
+  font-size: 2.25rem;
+  line-height: 1.12;
+  color: var(--auburn-navy);
+}
+
+.learning-objective {
+  margin: 0 auto 28px;
+  max-width: 620px;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.large-button {
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* App shell */
+.app-shell {
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  color: var(--auburn-navy);
+}
+
+.subhead {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.pill {
+  background: var(--auburn-navy);
+  color: #ffffff;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Layout */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--auburn-navy);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  color: var(--auburn-navy);
+  font-size: 1.2rem;
+}
+
+.card.wide {
+  grid-column: 1 / -1;
+}
+
+.prompt {
+  background: var(--card-soft);
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 58px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+button {
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+button:hover {
+  border-color: var(--auburn-orange);
+  color: var(--auburn-orange);
+}
+
+button.primary {
+  background: var(--auburn-orange);
+  color: #ffffff;
+  border-color: var(--auburn-orange);
+}
+
+button.primary:hover {
+  background: #d9681d;
+  color: #ffffff;
+}
+
+/* JE lines */
+.je-line {
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr 0.9fr 0.3fr;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+select,
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: #ffffff;
+  color: var(--text);
+}
+
+.remove {
+  background: transparent;
+  border: none;
+  color: var(--bad);
+  font-size: 20px;
+  padding: 0;
+  min-width: 32px;
+}
+
+.totals {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+
+.status-good {
+  color: var(--ok);
+  font-weight: 800;
+}
+
+.status-bad {
+  color: var(--bad);
+  font-weight: 800;
+}
+
+.feedback {
+  margin-top: 12px;
+  min-height: 44px;
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+/* Statement layout */
+.statements {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.statement-box {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--auburn-navy);
+  border-radius: 14px;
+  padding: 16px;
+  min-height: 320px;
+}
+
+.statement-title {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--auburn-navy);
+  margin-bottom: 4px;
+}
+
+.statement-subtitle {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.statement-section {
+  margin-top: 14px;
+}
+
+.statement-section-label {
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--auburn-navy);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.statement-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+  padding: 4px 0;
+}
+
+.statement-label {
+  color: var(--text);
+}
+
+.statement-label.indent {
+  padding-left: 18px;
+}
+
+.statement-amount {
+  min-width: 92px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.statement-total {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-strong);
+  font-weight: 700;
+}
+
+.statement-grand-total {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 2px solid var(--auburn-navy);
+  font-weight: 800;
+}
+
+.statement-eq {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-strong);
+  color: var(--auburn-navy);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.statement-note {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1100px) {
+  .statements {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header h1 {
+    font-size: 1.55rem;
+  }
+
+  .landing-card {
+    padding: 30px 20px;
+  }
+
+  .landing-card h1 {
+    font-size: 1.9rem;
+  }
+
+  .je-line {
+    grid-template-columns: 1fr;
+  }
+
+  .remove {
+    justify-self: end;
+  }
+}
