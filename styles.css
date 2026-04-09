@@ -71,8 +71,8 @@ body {
   pointer-events: none;
 
   box-shadow:
-    inset 0 0 0 2px var(--auburn-orange),
-    inset 0 0 0 5px var(--auburn-navy);
+    inset 0 0 0 2px var(--auburn-navy),
+    inset 0 0 0 5px var(--auburn-orange);
 }
 
 .eyebrow {
@@ -167,8 +167,8 @@ body {
   pointer-events: none;
 
   box-shadow:
-    inset 0 0 0 2px var(--auburn-orange),
-    inset 0 0 0 5px var(--auburn-navy);
+    inset 0 0 0 2px var(--auburn-navy),
+    inset 0 0 0 5px var(--auburn-orange);
 }
 
 .card h2 {
@@ -300,8 +300,8 @@ input {
   pointer-events: none;
 
   box-shadow:
-    inset 0 0 0 2px var(--auburn-orange),
-    inset 0 0 0 5px var(--auburn-navy);
+    inset 0 0 0 2px var(--auburn-navy),
+    inset 0 0 0 5px var(--auburn-orange);
 }
 
 .statement-title {
