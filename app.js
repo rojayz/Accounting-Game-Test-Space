@@ -255,8 +255,8 @@ const startGameBtn = $("startGame");
 
 if (startGameBtn) {
   startGameBtn.onclick = () => {
-    landingPage.classList.add("hidden");
-    gameWrapper.classList.remove("hidden");
+    landingPage.hidden = true;
+    gameWrapper.hidden = false;
   };
 }
 renderTransaction();
