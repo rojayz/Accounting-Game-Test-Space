@@ -38,7 +38,12 @@ function totals() {
 
 function moneyHTML(n) {
   const abs = Math.abs(n).toLocaleString();
-  return n < 0 ? `(${abs})` : abs;
+
+  if (n < 0) {
+    return `($${abs})`;
+  }
+
+  return `$${abs}`;
 }
 
 function rowHTML(label, amount, options = {}) {
