@@ -1,61 +1,76 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Accounting Journal Entry Game</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <header class="header">
-    <h1>Journal Entry → Financial Statements</h1>
-    <div id="score" class="pill">Score: 0</div>
-  </header>
+  <!-- Landing Page -->
+  <div id="landingPage" class="landing-overlay">
+    <div class="landing-card">
+      <p class="eyebrow">Accounting Learning Game</p>
+      <h1>Journal Entry → Financial Statements</h1>
+      <p class="landing-objective">
+        You will practice translating simply business events into properly formatted journal entries using correct account classifications and debit/credit rules.
+      </p>
+      <button id="startGame" class="primary start-btn">Start Game</button>
+    </div>
+  </div>
 
-  <main class="grid">
-    <section class="card">
-      <h2>Transaction</h2>
-      <div id="txPrompt" class="prompt"></div>
-      <div class="row">
-        <button id="prevTx">◀</button>
-        <button id="nextTx">Next Transaction ▶</button>
-      </div>
-      <div id="feedback" class="feedback"></div>
-    </section>
+  <!-- Main Game -->
+  <div id="gameWrapper" class="game-shell hidden">
+    <header class="header">
+      <h1>Journal Entry → Financial Statements</h1>
+      <div id="score" class="pill">Score: 0</div>
+    </header>
 
-    <section class="card">
-      <h2>Journal Entry</h2>
-      <div id="jeLines"></div>
-      <div class="row">
-        <button id="addLine">+ Add line</button>
-        <button id="clearJE">Clear</button>
-        <button id="postJE" class="primary">Post Entry</button>
-      </div>
-      <div class="totals">
-        <div>Debits: <span id="debits">0</span></div>
-        <div>Credits: <span id="credits">0</span></div>
-        <div id="balanced" class="pill">Not Balanced</div>
-      </div>
-    </section>
+    <main class="grid">
+      <section class="card">
+        <h2>Transaction</h2>
+        <div id="txPrompt" class="prompt"></div>
+        <div class="row">
+          <button id="prevTx">◀ Previous</button>
+          <button id="nextTx">Next ▶</button>
+        </div>
+      </section>
 
-    <section class="card wide">
-      <h2>Financial Statements (Live)</h2>
-      <div class="statements">
-        <div>
-          <h3>Income Statement</h3>
-          <pre id="incomeStmt"></pre>
+      <section class="card">
+        <h2>Journal Entry</h2>
+        <div id="jeLines"></div>
+        <div class="row">
+          <button id="addLine">+ Add line</button>
+          <button id="clearJE">Clear</button>
+          <button id="postJE" class="primary">Post Entry</button>
         </div>
-        <div>
-          <h3>Balance Sheet</h3>
-          <pre id="balanceSheet"></pre>
+        <div class="totals">
+          <span>Debits: <strong id="debits">0</strong></span>
+          <span>Credits: <strong id="credits">0</strong></span>
+          <span id="balanced">Not Balanced</span>
         </div>
-        <div>
-          <h3>Statement of Stockholders' Equity</h3>
-          <pre id="equityStmt"></pre>
+        <div id="feedback" class="feedback"></div>
+      </section>
+
+      <section class="card wide">
+        <h2>Financial Statements (Live)</h2>
+        <div class="statements">
+          <div>
+            <h3>Income Statement</h3>
+            <pre id="incomeStmt"></pre>
+          </div>
+          <div>
+            <h3>Balance Sheet</h3>
+            <pre id="balanceSheet"></pre>
+          </div>
+          <div>
+            <h3>Statement of Stockholders' Equity</h3>
+            <pre id="equityStmt"></pre>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <script type="module" src="./app.js"></script>
 </body>
